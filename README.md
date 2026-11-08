@@ -11,17 +11,23 @@ survey/           客戶調查問卷（PWA，可加入主畫面）
   icons/
 ```
 
-## 發布
+## 線上網址
 
-1. 在 GitHub 建立公開 repo `packmon-web`，把這個資料夾內容推上去（根目錄要有 `.nojekyll`）。
-2. Settings → Pages → Source 選 `main`、`/ (root)`。
-3. 問卷網址：`https://iminstevenchen.github.io/packmon-web/survey/`
+- 介紹頁：https://iminstevenchen.github.io/packmon-web/
+- 問卷：https://iminstevenchen.github.io/packmon-web/survey/
 
-## 接上 Google 試算表
+## 發布（已完成）
 
-1. 在「Packmon 問卷回覆」試算表，擴充功能 → Apps Script，貼上 `doPost`，部署為網頁應用程式（執行身分：我，存取權：所有人）。
-2. 把部署後的 `https://script.google.com/macros/s/.../exec` 填進 `survey/index.html` 的 `var SHEET_URL='';`。
-3. 重新推上 GitHub，填一次問卷，確認試算表多一列。
+GitHub Pages：Settings → Pages → `main`、`/ (root)`。推上 `main` 後約一分鐘更新。
+
+## 回覆收集
+
+問卷答案經 Google Apps Script 網頁應用程式寫進 Google 試算表「Packmon 問卷回覆」，每人一列。
+`survey/index.html` 的 `SHEET_URL` 已填入部署網址。改了 Apps Script 要用「部署 → 管理部署作業 → 編輯 → 新版本」才會生效，網址不變。
+
+## 更新問卷
+
+改完 `survey/index.html` 後，把 `survey/sw.js` 的 `CACHE` 版本號 +1，再推上 `main`，使用者下次開啟就會拿到新版。
 
 ## 注意
 
