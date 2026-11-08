@@ -1,0 +1,17 @@
+{
+  "name": "Packmon 旅行偏好滑滑樂",
+  "short_name": "Packmon",
+  "description": "滑一滑，猜出你的打包個性",
+  "lang": "zh-TW",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3E8D8",
+  "theme_color": "#D2693F",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
