@@ -465,7 +465,7 @@ function copyText(txt){
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,fallback)}else{fallback()}
 }
 /* 團隊測試：登入的團隊成員作答時，回答另存一份給發起人。外部訪客沒有此功能，頁面照常使用。 */
-var SHEET_URL=''; /* Google Apps Script 網頁應用程式網址，留空則不送出 */
+var SHEET_URL='https://script.google.com/macros/s/AKfycbzaerrmPOjSnZ2IcoK4VFGM724EkxIQWhNdsWiKhr4IKjbwizQZKX6L5x9TU1N6e0-r/exec'; /* Google Apps Script 網頁應用程式網址，留空則不送出 */
 async function toSheet(s,txt){
   if(!SHEET_URL)return;
   try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({at:new Date().toISOString(),type:s.type,pains:s.pains.join('、'),wants:s.wants.join('、'),blocks:s.blocks.join('、'),pick:s.pick,jp:s.jp,pay:s.pay,soon:s.soon,answers:A})})}catch(_){}
