@@ -53,6 +53,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pill{display:inline-block;padding:5px 14px;border-radius:99px;background:var(--accent);color:var(--on-accent);font-weight:900;font-size:13px;letter-spacing:.04em}
 .topbar{display:flex;align-items:center;gap:10px}
 :root[lang=zh-Hans]{--cjk:'Noto Sans SC'}:root[lang=ja]{--cjk:'Noto Sans JP'}:root[lang=ko]{--cjk:'Noto Sans KR'}
+#intro{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+#intro #start{position:sticky;bottom:8px;z-index:5}
+@media (max-height:820px){#intro .gestures li{padding:8px 14px}#intro .gestures{gap:8px}#intro .lead{margin:8px 0 0;font-size:14px}#intro .fine{margin-top:10px}}
 .langrow{display:flex;justify-content:flex-end;margin-bottom:10px}
 .lang{appearance:none;-webkit-appearance:none;cursor:pointer;margin-left:auto;border:2.5px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);padding:3px 14px;font-weight:900;font-size:13px;letter-spacing:.04em;box-shadow:0 3px 0 var(--hard)}
 .lang:active{transform:translateY(2px);box-shadow:0 1px 0 var(--hard)}
