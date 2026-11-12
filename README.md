@@ -1,4 +1,4 @@
-# packmon-web
+# packmon-survey
 
 Packmon 的網頁部分（靜態檔，用 GitHub Pages 發布）。App 本體是 SwiftUI iOS，程式碼在私有 repo。
 
@@ -13,8 +13,8 @@ survey/           客戶調查問卷（PWA，可加入主畫面）
 
 ## 線上網址
 
-- 介紹頁：https://iminstevenchen.github.io/packmon-web/
-- 問卷：https://iminstevenchen.github.io/packmon-web/survey/
+- 介紹頁：https://iminstevenchen.github.io/packmon-survey/
+- 問卷：https://iminstevenchen.github.io/packmon-survey/survey/
 
 ## 發布（已完成）
 
