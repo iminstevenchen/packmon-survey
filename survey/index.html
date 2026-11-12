@@ -184,6 +184,12 @@ h1 em,.rtype em{font-style:normal;color:var(--accent)}
 .ticks i{width:3px;height:10px;border-radius:2px;background:var(--line)}
 .ends{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-weight:900;font-size:14px}
 .ends span:last-child{text-align:right}
+.prof{overflow-y:auto}.grp{margin:10px 0 0}.gq{margin:0 0 6px;font-weight:900;font-size:15px}.gq small{font-weight:700;color:var(--muted);font-size:12px}
+.opts{display:flex;flex-wrap:wrap;gap:8px}.mbrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mbrow .opts{flex-wrap:nowrap}.mbrow .pb{flex:1;padding:10px 0;text-align:center}
+.pb{font:inherit;font-weight:800;font-size:15px;padding:8px 14px;border:3px solid var(--line);border-radius:99px;background:var(--surface);color:inherit;box-shadow:0 3px 0 var(--hard);cursor:pointer;transition:transform .12s var(--spring)}
+.pb:active{transform:translateY(2px)}.pb.on{background:var(--accent);color:#fff;transform:translateY(1px) scale(1.04)}
+.note-in{width:100%;box-sizing:border-box;margin-top:4px;padding:14px 16px;font:inherit;font-size:16px;color:inherit;background:var(--surface-2,#fff);border:3px solid var(--line);border-radius:20px;resize:none;min-height:130px}
+.note-in:focus{outline:3px solid var(--accent);outline-offset:2px}
 .spec-actions{display:grid;grid-template-columns:1fr 2fr;gap:12px;margin-top:18px}
 .spec-actions .cta{margin-top:0;padding:12px 16px;font-size:17px}
 .spec-actions .cta:disabled{opacity:.45;box-shadow:0 2px 0 var(--hard);cursor:not-allowed}
@@ -255,6 +261,9 @@ var LANG=(function(){
   return /^zh/i.test(n)?'zh':'en';
 })();
 var EN={
+'先聊聊你（選填）':'About you (optional)','你是？':'You are','年齡層':'Age range','一年大概出國幾次？':'Trips abroad per year?','目前的身分':'Your role','45 以上':'45+','1 次':'1','2–3 次':'2–3','4 次以上':'4+','學生':'Student','上班族':'Employee','自由工作者':'Freelancer','其他':'Other','不知道可以不選':'skip if unsure','全部跳過':'Skip all','先聊聊你，每題都可以跳過。':'A little about you. Every question is skippable.',
+'先聊聊你':'About you','先認識一下，你是？':'First, who are you?','男生':'Male','女生':'Female','不想說 🙈':'Skip 🙈','右滑男生，左滑女生，上滑跳過（不想說也 OK）。':'Swipe right for male, left for female, up to skip.','嗨！很高興認識你。':'Hi! Nice to meet you.','神祕旅人，也很酷。':'Mystery traveler, also cool.',
+'最後一個，想說什麼都可以，也可以跳過。':'Last one. Say anything, or skip it.','最後一個':'Last one','關於旅行打包，或這個 App，你還有什麼想說的嗎？':'Anything else you want to tell us about packing for trips, or this app?','想法、建議、遇過的狀況都可以（選填）':'Thoughts, suggestions, things that happened to you (optional)','送出':'Submit',
 'Packmon 旅行偏好滑滑樂':'Packmon Travel Swipe Survey',
 '旅行打包夥伴':'Travel packing buddy',
 '登機證 <b>BOARDING PASS</b>':'<b>BOARDING PASS</b>',
@@ -463,9 +472,10 @@ var CARDS={
  v1:{cat:'二選一',type:'vs',q:'下一趟出國，哪一個比較值得你試？',a:'依這趟行程，產生一份可以修改的打包清單。',b:'把物品的攜帶規定整理好，附上官方來源和查證日期。',say:{A:'先要一份好用的清單，記下了。',B:'先要查得到、信得過的規定，記下了。',N:'兩個都不需要也沒關係，這很有參考價值。'}},
  pay1:{cat:'想法',q:'如果有進階功能，我願意一次付一小筆費用。',hint:'只是想了解你的想法，目前沒有定價。',say:{r:'謝謝你說實話，我記下了。',l:'我只用免費的，也完全可以。'}},
  soon:{cat:'時間點',q:'我下一趟出國，大概在 3 個月內。',say:{r:'時間很近，你的答案很有參考價值。',l:'還有一段時間，我記下了。'}},
+ gender:{cat:'先聊聊你',type:'vs',q:'先認識一下，你是？',a:'男生',b:'女生',n:'不想說 🙈',vh:'右滑男生，左滑女生，上滑跳過（不想說也 OK）。',say:{A:'嗨！很高興認識你。',B:'嗨！很高興認識你。',N:'神祕旅人，也很酷。'}},
  jp:{cat:'最後一題',type:'vs',q:'你覺得自己更像哪一種旅行者？',a:'偏 J：愛提早規劃。',b:'偏 P：隨性，到時再說。',say:{A:'J 人，會提早把一切安排好。',B:'P 人，臨場反應最強。',N:'不用分類，也很好。'}}
 };
-var BASE=['abroad12','plan6','iphone','solo','r1','r2','p_forget','p_customs','p_scatter','p_return','p_split','m_memo','m_memory','m_install','m_privacy','f_remind','f_weather','f_offline','f_widget','f_mascot','f_share','v1','pay1','soon','jp'];
+var BASE=['abroad12','plan6','iphone','solo','r1','r2','p_forget','p_customs','p_scatter','p_split','m_memo','m_install','m_privacy','f_remind','f_weather','f_offline','f_mascot','v1','pay1','soon'];
 
 /* ---------- 狀態 ---------- */
 var A={}, queue=[], seen={}, current=null, busy=false, finished=false;
@@ -525,8 +535,8 @@ function cardEl(id,depth){
   el.setAttribute('role','group');el.setAttribute('aria-label',t(c.q));
   var h='<span class="tag">'+t(c.cat)+'</span>';
   if(c.type==='vs'){
-    h+='<div class="vs"><h3>'+t(c.q)+'</h3><div class="opt a"><b>A</b><span>'+t(c.a)+'</span></div><div class="opt b"><b>B</b><span>'+t(c.b)+'</span></div></div><div class="hint">'+t('右滑選 A，左滑選 B，上滑都不要。')+'</div>';
-    h+='<span class="stamp l">'+t('選 B')+'</span><span class="stamp r">'+t('選 A')+'</span><span class="stamp u">'+t('都不要')+'</span>';
+    h+='<div class="vs"><h3>'+t(c.q)+'</h3><div class="opt a"><b>A</b><span>'+t(c.a)+'</span></div><div class="opt b"><b>B</b><span>'+t(c.b)+'</span></div></div><div class="hint">'+t(c.vh||'右滑選 A，左滑選 B，上滑都不要。')+'</div>';
+    h+='<span class="stamp l">'+t('選 B')+'</span><span class="stamp r">'+t('選 A')+'</span><span class="stamp u">'+t(c.n||'都不要')+'</span>';
   }else{
     h+='<p class="q">'+t(c.q)+'</p><div class="hint">'+t(c.hint||'')+'</div>';
     h+='<span class="stamp l">'+t('不像我')+'</span><span class="stamp r">'+t('像我')+'</span><span class="stamp u">'+t('超有感')+'</span>';
@@ -540,10 +550,10 @@ function renderDeck(){
   for(var i=ids.length-1;i>=0;i--){st.appendChild(cardEl(ids[i],i))}
   var vs=CARDS[current].type==='vs';
   $('controls').dataset.mode=vs?'vs':'yn';
-  $('tL').textContent=t(vs?'選 B':'不像我');$('tR').textContent=t(vs?'選 A':'像我');$('tU').textContent=t(vs?'都不要':'超有感');
-  $('bL').setAttribute('aria-label',t(vs?'選 B':'不像我'));$('bR').setAttribute('aria-label',t(vs?'選 A':'像我'));$('bU').setAttribute('aria-label',t(vs?'都不要':'超有感'));
+  $('tL').textContent=t(vs?'選 B':'不像我');$('tR').textContent=t(vs?'選 A':'像我');var NL=vs?(CARDS[current].n||'都不要'):'超有感';$('tU').textContent=t(NL);
+  $('bL').setAttribute('aria-label',t(vs?'選 B':'不像我'));$('bR').setAttribute('aria-label',t(vs?'選 A':'像我'));$('bU').setAttribute('aria-label',t(NL));
   $('keyhint').textContent=t('也可以用鍵盤的 ← ↑ → 作答');
-  $('bU').querySelector('.vs-l').textContent=t('都不要');
+  $('bU').querySelector('.vs-l').textContent=t(NL);
   updateProgress();
 }
 function showNext(){
@@ -610,6 +620,7 @@ $('bL').addEventListener('click',function(){fly('l')});
 $('bR').addEventListener('click',function(){fly('r')});
 $('bU').addEventListener('click',function(){fly('u')});
 document.addEventListener('keydown',function(e){
+  if(noteActive||profileActive)return;
   if(specActive){if(e.key==='Enter'&&specTouched){e.preventDefault();$('sok').click()}return}
   if($('play').hidden)return;
   if(e.key==='ArrowLeft'){e.preventDefault();fly('l')}
@@ -657,8 +668,57 @@ function renderSpec(keep){
 }
 function nextSpec(){
   specIdx++;
-  if(specIdx>=SPEC.length){specActive=false;$('spec').hidden=true;return finish()}
+  if(specIdx>=SPEC.length){specActive=false;return startNote()}
   renderSpec();
+}
+var profileActive=false;
+var PROF=[
+ {id:'gender',q:'你是？',o:[['男生','👦'],['女生','👧'],['不想說','🙈']]},
+ {id:'age',q:'年齡層',o:[['18–24',''],['25–34',''],['35–44',''],['45 以上','']]},
+ {id:'freq',q:'一年大概出國幾次？',o:[['1 次',''],['2–3 次',''],['4 次以上','']]},
+ {id:'role',q:'目前的身分',o:[['學生','🎓'],['上班族','💼'],['自由工作者','🎧'],['其他','✨']]}
+];
+var MB=[['E','I'],['S','N'],['T','F'],['J','P']];
+function startProfile(keep){
+  profileActive=true;
+  $('stage').hidden=true;$('controls').hidden=true;$('spec').hidden=false;$('keyhint').textContent='';
+  if(!keep)say('先聊聊你，每題都可以跳過。');
+  var h='<div class="spec-card prof" role="group"><span class="tag">'+t('先聊聊你（選填）')+'</span>';
+  PROF.forEach(function(g){
+    h+='<div class="grp"><p class="gq">'+t(g.q)+'</p><div class="opts" data-g="'+g.id+'">';
+    g.o.forEach(function(o){h+='<button type="button" class="pb'+(A[g.id]===o[0]?' on':'')+'" data-v="'+o[0]+'">'+(o[1]?o[1]+' ':'')+t(o[0])+'</button>'});
+    h+='</div></div>';
+  });
+  var m=A.mbti||'????';
+  h+='<div class="grp"><p class="gq">MBTI <small>'+t('不知道可以不選')+'</small></p><div class="mbrow">';
+  MB.forEach(function(pr,i){h+='<div class="opts mb" data-i="'+i+'">'+pr.map(function(c){return '<button type="button" class="pb'+(m[i]===c?' on':'')+'" data-v="'+c+'">'+c+'</button>'}).join('')+'</div>'});
+  h+='</div></div><div class="spec-actions"><button class="cta alt" id="pskip" type="button">'+t('全部跳過')+'</button><button class="cta" id="pok" type="button">'+t('開始滑')+'</button></div></div>';
+  $('spec').innerHTML=h;
+  document.querySelectorAll('#spec .opts[data-g] .pb').forEach(function(b){b.addEventListener('click',function(){
+    var g=b.parentNode.dataset.g,v=b.dataset.v,on=A[g]===v;
+    b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
+    if(on)delete A[g];else{A[g]=v;b.classList.add('on')}})});
+  document.querySelectorAll('#spec .opts.mb .pb').forEach(function(b){b.addEventListener('click',function(){
+    var i=+b.parentNode.dataset.i,v=b.dataset.v,m=(A.mbti||'????').split(''),on=m[i]===v;
+    b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
+    m[i]=on?'?':v;if(!on)b.classList.add('on');A.mbti=m.join('');if(A.mbti==='????')delete A.mbti})});
+  var go=function(){profileActive=false;$('spec').hidden=true;$('stage').hidden=false;$('controls').hidden=false;showNext()};
+  $('pok').addEventListener('click',go);
+  $('pskip').addEventListener('click',function(){['gender','age','freq','role','mbti'].forEach(function(k){delete A[k]});go()});
+  $('bar').style.width='0%';$('pg').setAttribute('aria-valuenow',0);
+}
+var noteActive=false;
+function startNote(keep){
+  noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';
+  say('最後一個，想說什麼都可以，也可以跳過。');
+  $('spec').innerHTML='<div class="spec-card" role="group"><span class="tag">'+t('最後一個')+'</span><p class="q">'+t('關於旅行打包，或這個 App，你還有什麼想說的嗎？')+'</p>'
+   +'<textarea id="nt" class="note-in" maxlength="500" rows="5" placeholder="'+t('想法、建議、遇過的狀況都可以（選填）')+'"></textarea>'
+   +'<div class="spec-actions"><button class="cta alt" id="nskip" type="button">'+t('跳過')+'</button><button class="cta" id="nok" type="button">'+t('送出')+'</button></div></div>';
+  var nt=$('nt');if(keep)nt.value=keep;
+  var done=function(v){noteActive=false;$('spec').hidden=true;if(v)A.note=v;finish()};
+  $('nok').addEventListener('click',function(){done(nt.value.trim())});
+  $('nskip').addEventListener('click',function(){done('')});
+  $('bar').style.width='95%';$('pg').setAttribute('aria-valuenow',95);
 }
 function specChips(){
   return SPEC.filter(function(q){return A[q.id]!==undefined}).map(function(q){return t(SHORT[q.id])+t('：')+t(wordOf(q,A[q.id]))});
@@ -706,7 +766,7 @@ function summarize(){
   var blocks=list([['m_memo','已經有備忘錄或試算表'],['m_memory','習慣憑記憶'],['m_install','不想多裝 App'],['m_privacy','不想註冊帳號']]);
   var strong=Object.keys(A).filter(function(k){return A[k]===2&&CARDS[k]&&CARDS[k].type!=='vs'}).length;
   var pick={A:'先要一份可修改的清單',B:'先要整理好的攜帶規定',N:'兩個都不需要'}[A.v1]||'';
-  var jp={A:'偏 J',B:'偏 P',N:'不確定或不分類'}[A.jp]||'';
+  var jp=A.mbti&&A.mbti.length===4&&A.mbti[3]!=='?'?(A.mbti[3]==='J'?'偏 J':'偏 P'):'';
   var pay=A.pay1===undefined?'':(pos(A.pay1)?'願意為進階功能小額付費':'偏好免費');
   var soon=A.soon===undefined?'':(pos(A.soon)?'下一趟在 3 個月內':'下一趟還有一段時間');
   var expected=!pos(A.abroad12)&&pos(A.plan6);
@@ -777,7 +837,7 @@ function copyText(txt){
 var SHEET_URL='https://script.google.com/macros/s/AKfycbzaerrmPOjSnZ2IcoK4VFGM724EkxIQWhNdsWiKhr4IKjbwizQZKX6L5x9TU1N6e0-r/exec'; /* Google Apps Script 網頁應用程式網址，留空則不送出 */
 async function toSheet(s,txt){
   if(!SHEET_URL)return;
-  try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({at:new Date().toISOString(),type:s.type,pains:s.pains.join('、'),wants:s.wants.join('、'),blocks:s.blocks.join('、'),pick:s.pick,jp:s.jp,pay:s.pay,soon:s.soon,answers:Object.assign({lang:LANG},A)})})}catch(_){}
+  try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({at:new Date().toISOString(),type:s.type,pains:s.pains.join('、'),wants:s.wants.join('、'),blocks:s.blocks.join('、'),pick:s.pick,jp:s.jp,pay:s.pay,soon:s.soon,gender:A.gender||'',age:A.age||'',freq:A.freq||'',role:A.role||'',mbti:A.mbti||'',note:A.note||'',answers:Object.assign({lang:LANG},A)})})}catch(_){}
 }
 async function saveToTeam(s,txt){
   toSheet(s,txt);
@@ -785,12 +845,12 @@ async function saveToTeam(s,txt){
 
 /* ---------- 流程 ---------- */
 function restart(){
-  A={};seen={};queue=BASE.slice();current=null;finished=false;chipSet=[];specActive=false;specIdx=0;
+  A={};seen={};queue=BASE.slice();current=null;finished=false;chipSet=[];specActive=false;noteActive=false;profileActive=false;specIdx=0;
   $('stage').hidden=false;$('controls').hidden=false;$('spec').hidden=true;$('keyhint').textContent=t('也可以用鍵盤的 ← ↑ → 作答');resultMode='';
   $('chips').innerHTML='';$('chipsLabel').hidden=true;
   $('result').hidden=true;$('intro').hidden=true;$('play').hidden=false;
   lastSay='嗨，我是Jelly。你每滑一張，我就多懂你一點。';$('bubble').textContent=tl(lastSay);
-  showNext();
+  startProfile();
 }
 var STATIC=['#intro h1','#intro dd:not(:empty)','#intro .gestures li span:nth-child(2)','#intro .lead','#start','#intro .fine','.pill','#chipsLabel','.bp','#intro .tk-stub span'];
 function applyStatic(){
@@ -809,7 +869,9 @@ function setLang(l){
   if(!$('play').hidden){
     $('bubble').textContent=tl(lastSay);
     $('chips').innerHTML='';chipSet=[];renderChips();
-    if(specActive){var rg=$('sr');renderSpec({v:rg?rg.value:50,touched:specTouched})}
+    if(profileActive){startProfile(1)}
+    else if(noteActive){var n0=$('nt');startNote(n0?n0.value:'')}
+    else if(specActive){var rg=$('sr');renderSpec({v:rg?rg.value:50,touched:specTouched})}
     else if(current){renderDeck()}
   }
   if(!$('result').hidden){if(resultMode==='no')renderIneligible();else renderResult(false)}
