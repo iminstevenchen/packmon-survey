@@ -318,6 +318,7 @@ var CARDS={
  p_trust:{cat:'代價',q:'不同網站的說法互相矛盾時，我不知道該信哪一個。',say:{r:'所以每條規定都該附官方來源和查證日期。',l:'你通常知道該信哪裡。'}},
  p_scatter:{cat:'實際遇到的事',q:'我的清單、機票和規定資訊，散在好幾個 App 和群組裡。',say:{r:'資訊散落，確認起來很煩。',l:'你整理得不錯。'}},
  p_liquid:{cat:'實際遇到的事',q:'保養品和化妝品，我常煩惱大瓶帶不了、太重，或沒有託運行李。',say:{r:'液體和重量的限制，我記下了。',l:'保養品對你不是問題。'}},
+ p_amenity:{cat:'打包習慣',q:'我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。',say:{r:'住宿有的就不帶，我記下了。',l:'你還是習慣自己帶。'}},
  p_return:{cat:'實際遇到的事',q:'回程的時候，我曾經把東西遺留在飯店或民宿。',say:{r:'回程檢查，我會記下來。',l:'你收得很乾淨。'}},
  p_split:{cat:'實際遇到的事',q:'和同行的人分工帶東西時，常常搞不清楚誰帶什麼。',gate:function(a){return !pos(a.solo)},say:{r:'分工不清，也是常見的卡關點。',l:'你們分工得很順。'}},
  m_memo:{cat:'現在怎麼準備',q:'我現在用備忘錄、紙本或試算表就夠了。',say:{r:'你已經有自己的方法，Packmon 要比它更省力才行。',l:'現有的方法不太夠用，我記下了。'}},
@@ -337,7 +338,7 @@ var CARDS={
  gender:{cat:'先聊聊你',type:'vs',q:'先認識一下，你是？',a:'男生',b:'女生',n:'不想說 🙈',vh:'右滑男生，左滑女生，上滑跳過（不想說也 OK）。',say:{A:'嗨！很高興認識你。',B:'嗨！很高興認識你。',N:'神祕旅人，也很酷。'}},
  jp:{cat:'最後一題',type:'vs',q:'你覺得自己更像哪一種旅行者？',a:'偏 J：愛提早規劃。',b:'偏 P：隨性，到時再說。',say:{A:'J 人，會提早把一切安排好。',B:'P 人，臨場反應最強。',N:'不用分類，也很好。'}}
 };
-var BASE=['abroad12','plan6','iphone','solo','r1','r2','p_forget','p_customs','p_liquid','p_scatter','m_memo','m_privacy','f_remind','f_decant','f_weather','f_offline','f_mascot','v1','pay1','soon'];
+var BASE=['abroad12','plan6','iphone','solo','r1','r2','p_forget','p_customs','p_liquid','p_amenity','p_scatter','m_memo','m_privacy','f_remind','f_decant','f_weather','f_offline','f_mascot','v1','pay1','soon'];
 
 /* ---------- 狀態 ---------- */
 var A={}, queue=[], seen={}, current=null, busy=false, finished=false;
@@ -358,6 +359,7 @@ function chipsFrom(a){
   if(pos(a.p_forget))out.push('怕漏帶');
   if(pos(a.p_customs))out.push('在意攜帶規定');
   if(pos(a.p_liquid))out.push('保養品容量煩惱');
+  if(pos(a.p_amenity))out.push('住宿有的不帶');
   if(pos(a.p_scatter))out.push('資訊散落');
   if(pos(a.p_return))out.push('回程易遺留');
   if(pos(a.m_privacy))out.push('不想註冊');
@@ -615,6 +617,10 @@ Object.assign(TR.en,{"創業／自營": "Founder / self-employed", "家管": "Ho
 Object.assign(TR.ja,{"創業／自營": "起業・自営", "家管": "主婦・主夫", "退休": "退職", "請輸入你的身分": "立場を入力"});
 Object.assign(TR.ko,{"創業／自營": "창업·자영업", "家管": "주부", "退休": "은퇴", "請輸入你的身分": "신분을 입력하세요"});
 Object.assign(TR.cn,{"創業／自營": "创业／自营", "家管": "家管", "退休": "退休", "請輸入你的身分": "请输入你的身分"});
+Object.assign(TR.en,{"打包習慣": "Packing habit", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "I usually do not bring shampoo, body wash or a hair dryer, since most places have them.", "住宿有的就不帶，我記下了。": "If the stay has it, you skip it. Noted.", "你還是習慣自己帶。": "You still prefer to bring your own.", "住宿有的不帶": "Skips what stays provide"});
+Object.assign(TR.ja,{"打包習慣": "荷造りの習慣", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "シャンプーやボディソープ、ドライヤーは、たいていの宿にあるので普段は持っていかない。", "住宿有的就不帶，我記下了。": "宿にあるものは持たない、記録しました。", "你還是習慣自己帶。": "やはり自分のものを持っていくんですね。", "住宿有的不帶": "宿にあるものは持たない"});
+Object.assign(TR.ko,{"打包習慣": "짐 싸는 습관", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "샴푸, 바디워시, 드라이어는 대부분 숙소에 있어서 보통 가져가지 않아요.", "住宿有的就不帶，我記下了。": "숙소에 있는 건 안 가져가시는군요, 기록했어요.", "你還是習慣自己帶。": "역시 직접 챙기는 편이시군요.", "住宿有的不帶": "숙소에 있는 건 안 챙김"});
+Object.assign(TR.cn,{"打包習慣": "打包习惯", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "我通常不带沐浴乳、洗发精或吹风机，因为大部分住宿都有。", "住宿有的就不帶，我記下了。": "住宿有的就不带，我记下了。", "你還是習慣自己帶。": "你还是习惯自己带。", "住宿有的不帶": "住宿有的不带"});
 var noteActive=false;
 function startNote(keep){
   noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';

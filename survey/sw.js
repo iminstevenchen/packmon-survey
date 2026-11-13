@@ -1,5 +1,5 @@
 // 改了問卷內容就把版本號 +1，使用者下次開啟會拿到新版
-const CACHE = 'packmon-survey-v13';
+const CACHE = 'packmon-survey-v14';
 const ASSETS = [
   './',
   'index.html',
