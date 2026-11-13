@@ -222,6 +222,7 @@ body:has(#spec:not([hidden])) #chips,body:has(#spec:not([hidden])) #chipsLabel{d
 .opts.big{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.opts.big .pb{font-size:16px;padding:12px 10px;text-align:center;border-radius:22px;line-height:1.25}
 #prow{margin-top:12px}#prow .cta{margin-top:12px}
 .prof .cta{margin-top:18px}.pnav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px}
+.plink.undo{display:block;margin:2px auto 0}body:has(#spec:not([hidden])) #undo{display:none}
 .plink{background:none;border:0;font:inherit;font-weight:700;font-size:13px;color:var(--muted);text-decoration:underline;padding:10px 6px;cursor:pointer}
 .note-in{width:100%;box-sizing:border-box;margin-top:4px;padding:14px 16px;font:inherit;font-size:16px;color:inherit;background:var(--surface-2,#fff);border:3px solid var(--line);border-radius:20px;resize:none;min-height:130px}
 .note-in.nick{min-height:0;padding:10px 14px;border-radius:99px}
@@ -279,6 +280,7 @@ body:has(#spec:not([hidden])) #chips,body:has(#spec:not([hidden])) #chipsLabel{d
       <button class="act u" type="button" id="bU" aria-label="超有感"><span class="jelly"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.6 6.4 19.8l1.3-6.2L3 9.3l6.3-.7z"/></svg><span class="vs-l" style="font-size:16px">都不要</span></span><span id="tU">超有感</span></button>
       <button class="act r" type="button" id="bR" aria-label="像我"><span class="jelly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="vs-l">A</span></span><span id="tR">像我</span></button>
     </div>
+    <button type="button" class="plink undo" id="undo" hidden></button>
     <p class="hintline" id="keyhint">也可以用鍵盤的 ← ↑ → 作答</p>
   </section>
 
@@ -437,8 +439,16 @@ function showNext(){
 
 /* ---------- 作答 ---------- */
 function topEl(){return $('stage').querySelector('.card.top')}
+var hist=[];
+function undo(){
+  if(busy||finished||!hist.length||specActive||noteActive||profileActive)return;
+  var h=hist.pop();A=h.A;queue=h.queue;seen=h.seen;current=h.current;
+  say('沒關係，重新選一次。');renderChips();renderDeck();upUndo();
+}
+function upUndo(){var u=$('undo');if(u)u.hidden=!hist.length}
 function commit(dir){
   var id=current,c=CARDS[id];
+  hist.push({A:Object.assign({},A),queue:queue.slice(),seen:Object.assign({},seen),current:id});upUndo();
   seen[id]=true;
   var key;
   if(c.type==='vs'){key=dir==='r'?'A':dir==='l'?'B':'N';A[id]=key}
@@ -492,8 +502,10 @@ $('stage').addEventListener('pointercancel',endDrag);
 $('bL').addEventListener('click',function(){fly('l')});
 $('bR').addEventListener('click',function(){fly('r')});
 $('bU').addEventListener('click',function(){fly('u')});
+$('undo').addEventListener('click',undo);
 document.addEventListener('keydown',function(e){
   if(noteActive||profileActive)return;
+  if(!specActive&&!$('play').hidden&&(e.key==='ArrowDown'||e.key==='Backspace')&&hist.length){e.preventDefault();undo();return}
   if(specActive){if(e.key==='Enter'&&specTouched){e.preventDefault();$('sok').click()}return}
   if($('play').hidden)return;
   if(e.key==='ArrowLeft'){e.preventDefault();fly('l')}
@@ -629,6 +641,10 @@ Object.assign(TR.en,{"打包習慣": "Packing habit", "我通常不帶沐浴乳�
 Object.assign(TR.ja,{"打包習慣": "荷造りの習慣", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "シャンプーやボディソープ、ドライヤーは、たいていの宿にあるので普段は持っていかない。", "住宿有的就不帶，我記下了。": "宿にあるものは持たない、記録しました。", "你還是習慣自己帶。": "やはり自分のものを持っていくんですね。", "住宿有的不帶": "宿にあるものは持たない"});
 Object.assign(TR.ko,{"打包習慣": "짐 싸는 습관", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "샴푸, 바디워시, 드라이어는 대부분 숙소에 있어서 보통 가져가지 않아요.", "住宿有的就不帶，我記下了。": "숙소에 있는 건 안 가져가시는군요, 기록했어요.", "你還是習慣自己帶。": "역시 직접 챙기는 편이시군요.", "住宿有的不帶": "숙소에 있는 건 안 챙김"});
 Object.assign(TR.cn,{"打包習慣": "打包习惯", "我通常不帶沐浴乳、洗髮精或吹風機，因為大部分住宿都有。": "我通常不带沐浴乳、洗发精或吹风机，因为大部分住宿都有。", "住宿有的就不帶，我記下了。": "住宿有的就不带，我记下了。", "你還是習慣自己帶。": "你还是习惯自己带。", "住宿有的不帶": "住宿有的不带"});
+Object.assign(TR.en,{"沒關係，重新選一次。": "No worries, pick again."});
+Object.assign(TR.ja,{"沒關係，重新選一次。": "大丈夫、もう一度選んでね。"});
+Object.assign(TR.ko,{"沒關係，重新選一次。": "괜찮아요, 다시 골라 보세요."});
+Object.assign(TR.cn,{"沒關係，重新選一次。": "没关系，重新选一次。"});
 var noteActive=false;
 function startNote(keep){
   noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';
@@ -767,7 +783,7 @@ async function saveToTeam(s,txt){
 
 /* ---------- 流程 ---------- */
 function restart(){
-  A={};seen={};queue=BASE.slice();current=null;finished=false;chipSet=[];specActive=false;noteActive=false;profileActive=false;profPhase='front';specIdx=0;
+  A={};seen={};queue=BASE.slice();current=null;finished=false;chipSet=[];specActive=false;noteActive=false;profileActive=false;profPhase='front';hist=[];specIdx=0;
   $('stage').hidden=false;$('controls').hidden=false;$('spec').hidden=true;$('keyhint').textContent=t('也可以用鍵盤的 ← ↑ → 作答');resultMode='';
   $('chips').innerHTML='';$('chipsLabel').hidden=true;
   $('result').hidden=true;$('intro').hidden=true;$('play').hidden=false;
@@ -778,6 +794,7 @@ var STATIC=['#intro h1','#intro dd:not(:empty)','#intro .gestures li span:nth-ch
 function applyStatic(){
   var HL={zh:'zh-Hant',cn:'zh-Hans',en:'en',ja:'ja',ko:'ko'},FN={zh:'Noto+Sans+TC',cn:'Noto+Sans+SC',ja:'Noto+Sans+JP',ko:'Noto+Sans+KR'};
   document.documentElement.lang=HL[LANG];
+  var ud=$('undo');if(ud)ud.textContent='↶ '+t('上一題');
   if(FN[LANG]&&!document.getElementById('f-'+LANG)){var lk=document.createElement('link');lk.id='f-'+LANG;lk.rel='stylesheet';lk.href='https://fonts.googleapis.com/css2?family='+FN[LANG]+':wght@400;500;700;900&display=swap';document.head.appendChild(lk)}
   document.title=t('Packmon 旅行偏好滑滑樂');
   document.querySelectorAll(STATIC.join(',')).forEach(function(el){
