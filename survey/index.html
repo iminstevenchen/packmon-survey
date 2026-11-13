@@ -523,7 +523,8 @@ function renderSpec(keep){
   rg.addEventListener('pointerdown',function(){if(!specTouched)setTimeout(function(){if(!specTouched)touch()},0)});
   ok.addEventListener('click',function(){A[q.id]=+rg.value;nextSpec()});
   $('sskip').addEventListener('click',nextSpec);
-  if(keep&&keep.touched){rg.value=keep.v;touch()}
+  if(keep&&keep.touched)rg.value=keep.v;
+  touch();
   $('keyhint').textContent=t('用 ← → 微調，Enter 確認');
   rg.focus({preventScroll:true});
   updateProgress();
@@ -537,8 +538,8 @@ var profileActive=false;
 var PROF=[
  {id:'gender',q:'你是？',o:[['男生','👦'],['女生','👧'],['不想說','🙈']]},
  {id:'age',q:'年齡層',o:[['18–24',''],['25–34',''],['35–44',''],['45 以上','']]},
- {id:'freq',q:'一年大概出國幾次？',o:[['1 次',''],['2–3 次',''],['4 次以上','']]},
- {id:'trip',q:'最近一趟或下一趟，大多是？',o:[['短途（約一週內）',''],['長途（一週以上）',''],['兩種都有','']]},
+ {id:'freq',q:'一年大概出國幾次？',o:[['0 次',''],['1 次',''],['2–3 次',''],['4 次以上','']]},
+ {id:'trip',q:'最近一趟或下一趟，大多是？',o:[['短途（約一週內）',''],['長途（一週以上）',''],['兩種都有',''],['目前沒有旅行計畫','']]},
  {id:'role',q:'目前的身分',o:[['學生','🎓'],['上班族','💼'],['自由工作者','🎧'],['其他','✨']]}
 ];
 var MB=[['E','I'],['S','N'],['T','F'],['J','P']];
@@ -548,9 +549,9 @@ function startBack(){profPhase='back';profStep=0;say('快完成了，還有兩�
 function startProfile(keep){
   profileActive=true;if(!keep)profStep=0;
   $('stage').hidden=true;$('controls').hidden=true;$('spec').hidden=false;$('keyhint').textContent='';
-  if(!keep&&profPhase==='front')say('先聊聊你，每題都可以跳過。');
+  if(!keep&&profPhase==='front')say('先認識一下你，很快就好！');
   var ids=profPhase==='back'?['mbti','nick']:PROF.map(function(x){return x.id}),n=ids.length,id=ids[profStep],g=PROF.filter(function(x){return x.id===id})[0];
-  var h='<div class="spec-card prof" role="group"><span class="tag">'+t('先聊聊你（選填）')+'</span><div class="dots">';
+  var h='<div class="spec-card prof" role="group"><span class="tag">'+(profPhase==='back'?t('先聊聊你（選填）'):t('先聊聊你'))+'</span><div class="dots">';
   for(var k=0;k<n;k++)h+='<i'+(k<=profStep?' class="on"':'')+'></i>';
   h+='</div>';
   if(id==='nick'){
@@ -565,7 +566,7 @@ function startProfile(keep){
     MB.forEach(function(pr,i){h+='<div class="opts mb" data-i="'+i+'">'+pr.map(function(c){return '<button type="button" class="pb'+(m[i]===c?' on':'')+'" data-v="'+c+'"><b>'+c+'</b><small>'+t(MBD[c])+'</small></button>'}).join('')+'</div>'});
     h+='</div><button class="cta" id="pnext" type="button">'+t('下一步')+'</button>';
   }
-  h+='<div class="pnav"><button type="button" class="plink" id="pback"'+(profStep?'':' style="visibility:hidden"')+'>‹ '+t('上一題')+'</button><button type="button" class="plink" id="pskip">'+t('跳過')+' ›</button></div></div>';
+  h+='<div class="pnav"><button type="button" class="plink" id="pback"'+(profStep?'':' style="visibility:hidden"')+'>‹ '+t('上一題')+'</button>'+(profPhase==='back'?'<button type="button" class="plink" id="pskip">'+t('跳過')+' ›</button>':'<span></span>')+'</div></div>';
   $('spec').innerHTML=h;
   var saveNick=function(){var e=$('pn');if(e){var v=e.value.trim();if(v)A.nick=v;else delete A.nick}};
   var go=function(){profileActive=false;if(profPhase==='back')return startNote();$('spec').hidden=true;$('stage').hidden=false;$('controls').hidden=false;showNext()};
@@ -577,7 +578,7 @@ function startProfile(keep){
     b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
     m[i]=on?'?':v;if(!on)b.classList.add('on');A.mbti=m.join('');if(A.mbti==='????')delete A.mbti})});
   if($('pnext'))$('pnext').addEventListener('click',next);
-  $('pskip').addEventListener('click',function(){if(id==='mbti')delete A.mbti;else if(g)delete A[id];next()});
+  if($('pskip'))$('pskip').addEventListener('click',function(){if(id==='mbti')delete A.mbti;next()});
   $('pback').addEventListener('click',function(){saveNick();if(profStep>0){profStep--;startProfile(1)}});
   var pc=profPhase==='back'?90:0;$('bar').style.width=pc+'%';$('pg').setAttribute('aria-valuenow',pc);
 }
@@ -597,6 +598,14 @@ Object.assign(TR.en,{"外向": "Outgoing", "內向": "Reserved", "實際": "Prac
 Object.assign(TR.ja,{"外向": "外向", "內向": "内向", "實際": "現実", "直覺": "直感", "理性": "論理", "感性": "感情", "計畫": "計画", "彈性": "柔軟", "快完成了，還有兩個小問題，都可以跳過。": "もうすぐ終わり。あと2つ、どちらもスキップできます。"});
 Object.assign(TR.ko,{"外向": "외향", "內向": "내향", "實際": "현실", "直覺": "직관", "理性": "논리", "感性": "감정", "計畫": "계획", "彈性": "유연", "快完成了，還有兩個小問題，都可以跳過。": "거의 끝났어요. 작은 질문 두 개, 건너뛰어도 돼요."});
 Object.assign(TR.cn,{"外向": "外向", "內向": "内向", "實際": "实际", "直覺": "直觉", "理性": "理性", "感性": "感性", "計畫": "计划", "彈性": "弹性", "快完成了，還有兩個小問題，都可以跳過。": "快完成了，还有两个小问题，都可以跳过。"});
+Object.assign(TR.en,{"先認識一下你，很快就好！": "A quick intro first. It only takes a moment!"});
+Object.assign(TR.ja,{"先認識一下你，很快就好！": "まずあなたのことを少しだけ。すぐ終わります！"});
+Object.assign(TR.ko,{"先認識一下你，很快就好！": "먼저 간단히 알려 주세요. 금방 끝나요!"});
+Object.assign(TR.cn,{"先認識一下你，很快就好！": "先认识一下你，很快就好！"});
+Object.assign(TR.en,{"0 次": "0", "目前沒有旅行計畫": "No trips planned"});
+Object.assign(TR.ja,{"0 次": "0回", "目前沒有旅行計畫": "旅行の予定はない"});
+Object.assign(TR.ko,{"0 次": "0회", "目前沒有旅行計畫": "여행 계획 없음"});
+Object.assign(TR.cn,{"0 次": "0 次", "目前沒有旅行計畫": "目前没有旅行计划"});
 var noteActive=false;
 function startNote(keep){
   noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';
