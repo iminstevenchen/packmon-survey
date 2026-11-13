@@ -55,7 +55,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 :root[lang=zh-Hans]{--cjk:'Noto Sans SC'}:root[lang=ja]{--cjk:'Noto Sans JP'}:root[lang=ko]{--cjk:'Noto Sans KR'}
 #intro{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:4px}
 #intro #start{position:sticky;bottom:8px;z-index:5}
-@media (max-height:820px){#intro .gestures li{padding:8px 14px}#intro .gestures{gap:8px}#intro .lead{margin:8px 0 0;font-size:14px}#intro .fine{margin-top:10px}}
+@media (max-height:940px){
+ #intro .fields{display:none}
+ #intro h1{font-size:clamp(24px,7vw,32px)}
+ #intro .tk-stub{padding:10px 14px}#intro .tk-stub img{width:56px;height:56px}
+ #intro .gestures{grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+ #intro .gestures li{grid-template-columns:1fr;justify-items:center;text-align:center;gap:4px;padding:8px 4px;font-size:13px;line-height:1.25}
+ #intro .gestures li small{display:none}
+ #intro .gestures .g{width:34px;height:34px}
+ #intro .lead{margin:10px 0 0;font-size:14px}
+ #intro .cta{margin-top:12px;padding:12px 16px}
+ #intro .fine{margin-top:8px;font-size:11px;line-height:1.4}
+}
 .langrow{display:flex;justify-content:flex-end;margin-bottom:10px}
 .lang{appearance:none;-webkit-appearance:none;cursor:pointer;margin-left:auto;border:2.5px solid var(--line);border-radius:99px;background:var(--surface);color:var(--ink);padding:3px 14px;font-weight:900;font-size:13px;letter-spacing:.04em;box-shadow:0 3px 0 var(--hard)}
 .lang:active{transform:translateY(2px);box-shadow:0 1px 0 var(--hard)}
