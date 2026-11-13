@@ -211,7 +211,8 @@ h1 em,.rtype em{font-style:normal;color:var(--accent)}
 .pb{font:inherit;font-weight:800;font-size:15px;padding:8px 14px;border:3px solid var(--line);border-radius:99px;background:var(--surface);color:inherit;box-shadow:0 3px 0 var(--hard);cursor:pointer;transition:transform .12s var(--spring)}
 .pb:active{transform:translateY(2px)}.pb.on{background:var(--accent);color:#fff;transform:translateY(1px) scale(1.04)}
 .dots{display:flex;gap:5px;margin:12px 0 4px}.dots i{flex:1;height:6px;border-radius:9px;background:var(--line);opacity:.2}.dots i.on{opacity:1;background:var(--accent)}
-.opts.big{flex-direction:column;gap:10px;margin-top:10px}.opts.big .pb{font-size:18px;padding:13px 18px;text-align:left}
+.opts.big{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.opts.big .pb{font-size:16px;padding:12px 10px;text-align:center;border-radius:22px;line-height:1.25}
+#prow{margin-top:12px}#prow .cta{margin-top:12px}
 .prof .cta{margin-top:18px}.pnav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px}
 .plink{background:none;border:0;font:inherit;font-weight:700;font-size:13px;color:var(--muted);text-decoration:underline;padding:10px 6px;cursor:pointer}
 .note-in{width:100%;box-sizing:border-box;margin-top:4px;padding:14px 16px;font:inherit;font-size:16px;color:inherit;background:var(--surface-2,#fff);border:3px solid var(--line);border-radius:20px;resize:none;min-height:130px}
@@ -540,7 +541,7 @@ var PROF=[
  {id:'age',q:'年齡層',o:[['18–24',''],['25–34',''],['35–44',''],['45 以上','']]},
  {id:'freq',q:'一年大概出國幾次？',o:[['0 次',''],['1 次',''],['2–3 次',''],['4 次以上','']]},
  {id:'trip',q:'最近一趟或下一趟，大多是？',o:[['短途（約一週內）',''],['長途（一週以上）',''],['兩種都有',''],['目前沒有旅行計畫','']]},
- {id:'role',q:'目前的身分',o:[['學生','🎓'],['上班族','💼'],['自由工作者','🎧'],['其他','✨']]}
+ {id:'role',q:'目前的身分',o:[['學生','🎓'],['上班族','💼'],['自由工作者','🎧'],['創業／自營','🚀'],['家管','🏠'],['退休','🌴'],['其他','✨']]}
 ];
 var MB=[['E','I'],['S','N'],['T','F'],['J','P']];
 var MBD={E:'外向',I:'內向',S:'實際',N:'直覺',T:'理性',F:'感性',J:'計畫',P:'彈性'};
@@ -560,6 +561,7 @@ function startProfile(keep){
     h+='<p class="q">'+t(g.q)+'</p><div class="opts big" data-g="'+g.id+'">';
     g.o.forEach(function(o){h+='<button type="button" class="pb'+(A[g.id]===o[0]?' on':'')+'" data-v="'+o[0]+'">'+(o[1]?o[1]+' ':'')+t(o[0])+'</button>'});
     h+='</div>';
+    if(id==='role')h+='<div id="prow" style="display:'+(A.role==='其他'?'block':'none')+'"><input id="po" class="note-in nick" maxlength="30" autocomplete="off" placeholder="'+t('請輸入你的身分')+'" value="'+(A.role_other||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'"><button class="cta" id="pnext" type="button">'+t('下一步')+'</button></div>';
   }else{
     var m=A.mbti||'????';
     h+='<p class="q">MBTI <small>'+t('不知道可以不選')+'</small></p><div class="mbrow">';
@@ -568,11 +570,14 @@ function startProfile(keep){
   }
   h+='<div class="pnav"><button type="button" class="plink" id="pback"'+(profStep?'':' style="visibility:hidden"')+'>‹ '+t('上一題')+'</button>'+(profPhase==='back'?'<button type="button" class="plink" id="pskip">'+t('跳過')+' ›</button>':'<span></span>')+'</div></div>';
   $('spec').innerHTML=h;
-  var saveNick=function(){var e=$('pn');if(e){var v=e.value.trim();if(v)A.nick=v;else delete A.nick}};
+  var saveNick=function(){var e=$('pn');if(e){var v=e.value.trim();if(v)A.nick=v;else delete A.nick}var o=$('po');if(o&&A.role==='其他'){var w=o.value.trim();if(w)A.role_other=w;else delete A.role_other}};
   var go=function(){profileActive=false;if(profPhase==='back')return startNote();$('spec').hidden=true;$('stage').hidden=false;$('controls').hidden=false;showNext()};
   var next=function(){saveNick();if(profStep>=n-1)return go();profStep++;startProfile(1)};
   document.querySelectorAll('#spec .opts[data-g] .pb').forEach(function(b){b.addEventListener('click',function(){
-    A[b.parentNode.dataset.g]=b.dataset.v;b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');setTimeout(next,220)})});
+    A[b.parentNode.dataset.g]=b.dataset.v;b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    if(b.dataset.v==='其他'&&b.parentNode.dataset.g==='role'){$('prow').style.display='block';$('po').focus();return}
+    if(b.parentNode.dataset.g==='role'){delete A.role_other}
+    setTimeout(next,220)})});
   document.querySelectorAll('#spec .opts.mb .pb').forEach(function(b){b.addEventListener('click',function(){
     var i=+b.parentNode.dataset.i,v=b.dataset.v,m=(A.mbti||'????').split(''),on=m[i]===v;
     b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
@@ -606,6 +611,10 @@ Object.assign(TR.en,{"0 次": "0", "目前沒有旅行計畫": "No trips planned
 Object.assign(TR.ja,{"0 次": "0回", "目前沒有旅行計畫": "旅行の予定はない"});
 Object.assign(TR.ko,{"0 次": "0회", "目前沒有旅行計畫": "여행 계획 없음"});
 Object.assign(TR.cn,{"0 次": "0 次", "目前沒有旅行計畫": "目前没有旅行计划"});
+Object.assign(TR.en,{"創業／自營": "Founder / self-employed", "家管": "Homemaker", "退休": "Retired", "請輸入你的身分": "Type your role"});
+Object.assign(TR.ja,{"創業／自營": "起業・自営", "家管": "主婦・主夫", "退休": "退職", "請輸入你的身分": "立場を入力"});
+Object.assign(TR.ko,{"創業／自營": "창업·자영업", "家管": "주부", "退休": "은퇴", "請輸入你的身分": "신분을 입력하세요"});
+Object.assign(TR.cn,{"創業／自營": "创业／自营", "家管": "家管", "退休": "退休", "請輸入你的身分": "请输入你的身分"});
 var noteActive=false;
 function startNote(keep){
   noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';
@@ -736,7 +745,7 @@ function copyText(txt){
 var SHEET_URL='https://script.google.com/macros/s/AKfycbzaerrmPOjSnZ2IcoK4VFGM724EkxIQWhNdsWiKhr4IKjbwizQZKX6L5x9TU1N6e0-r/exec'; /* Google Apps Script 網頁應用程式網址，留空則不送出 */
 async function toSheet(s,txt){
   if(!SHEET_URL)return;
-  try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({at:new Date().toISOString(),type:s.type,pains:s.pains.join('、'),wants:s.wants.join('、'),blocks:s.blocks.join('、'),pick:s.pick,jp:s.jp,pay:s.pay,soon:s.soon,nick:A.nick||'',gender:A.gender||'',age:A.age||'',freq:A.freq||'',trip:A.trip||'',role:A.role||'',mbti:A.mbti||'',note:A.note||'',answers:Object.assign({lang:LANG},A)})})}catch(_){}
+  try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({at:new Date().toISOString(),type:s.type,pains:s.pains.join('、'),wants:s.wants.join('、'),blocks:s.blocks.join('、'),pick:s.pick,jp:s.jp,pay:s.pay,soon:s.soon,nick:A.nick||'',gender:A.gender||'',age:A.age||'',freq:A.freq||'',trip:A.trip||'',role:(A.role||'')+(A.role_other?'：'+A.role_other:''),mbti:A.mbti||'',note:A.note||'',answers:Object.assign({lang:LANG},A)})})}catch(_){}
 }
 async function saveToTeam(s,txt){
   toSheet(s,txt);
