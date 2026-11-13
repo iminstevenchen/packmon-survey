@@ -520,7 +520,7 @@ function renderSpec(keep){
    +'<div class="spec-actions"><button class="cta alt" id="sskip" type="button">'+t('跳過')+'</button><button class="cta" id="sok" type="button" disabled>'+t('確認')+'</button></div></div>';
   var rg=$('sr'),val=$('sv'),ok=$('sok');
   var touch=function(){specTouched=true;rg.classList.remove('idle');val.classList.remove('idle');ok.disabled=false;val.textContent=t(wordOf(q,+rg.value))};
-  rg.addEventListener('input',touch);
+  rg.addEventListener('input',function(){var v=+rg.value;if(Math.abs(v-50)<=7)rg.value=50;touch()});
   rg.addEventListener('pointerdown',function(){if(!specTouched)setTimeout(function(){if(!specTouched)touch()},0)});
   ok.addEventListener('click',function(){A[q.id]=+rg.value;nextSpec()});
   $('sskip').addEventListener('click',nextSpec);
