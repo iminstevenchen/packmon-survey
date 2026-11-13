@@ -206,6 +206,10 @@ h1 em,.rtype em{font-style:normal;color:var(--accent)}
 .opts{display:flex;flex-wrap:wrap;gap:8px}.mbrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mbrow .opts{flex-wrap:nowrap}.mbrow .pb{flex:1;padding:10px 0;text-align:center}
 .pb{font:inherit;font-weight:800;font-size:15px;padding:8px 14px;border:3px solid var(--line);border-radius:99px;background:var(--surface);color:inherit;box-shadow:0 3px 0 var(--hard);cursor:pointer;transition:transform .12s var(--spring)}
 .pb:active{transform:translateY(2px)}.pb.on{background:var(--accent);color:#fff;transform:translateY(1px) scale(1.04)}
+.dots{display:flex;gap:5px;margin:12px 0 4px}.dots i{flex:1;height:6px;border-radius:9px;background:var(--line);opacity:.2}.dots i.on{opacity:1;background:var(--accent)}
+.opts.big{flex-direction:column;gap:10px;margin-top:10px}.opts.big .pb{font-size:18px;padding:13px 18px;text-align:left}
+.prof .cta{margin-top:18px}.pnav{display:flex;justify-content:space-between;margin-top:auto;padding-top:14px}
+.plink{background:none;border:0;font:inherit;font-weight:700;font-size:13px;color:var(--muted);text-decoration:underline;padding:10px 6px;cursor:pointer}
 .note-in{width:100%;box-sizing:border-box;margin-top:4px;padding:14px 16px;font:inherit;font-size:16px;color:inherit;background:var(--surface-2,#fff);border:3px solid var(--line);border-radius:20px;resize:none;min-height:130px}
 .note-in.nick{min-height:0;padding:10px 14px;border-radius:99px}
 .note-in:focus{outline:3px solid var(--accent);outline-offset:2px}
@@ -534,33 +538,41 @@ var PROF=[
  {id:'role',q:'目前的身分',o:[['學生','🎓'],['上班族','💼'],['自由工作者','🎧'],['其他','✨']]}
 ];
 var MB=[['E','I'],['S','N'],['T','F'],['J','P']];
+var profStep=0;
 function startProfile(keep){
-  profileActive=true;
+  profileActive=true;if(!keep)profStep=0;
   $('stage').hidden=true;$('controls').hidden=true;$('spec').hidden=false;$('keyhint').textContent='';
   if(!keep)say('先聊聊你，每題都可以跳過。');
-  var h='<div class="spec-card prof" role="group"><span class="tag">'+t('先聊聊你（選填）')+'</span>';
-  h+='<div class="grp"><p class="gq">'+t('暱稱')+' <small>'+t('選填，讓我知道是誰填的')+'</small></p><input id="pn" class="note-in nick" maxlength="20" autocomplete="off" placeholder="'+t('例如：小明')+'" value="'+(A.nick||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'"></div>';
-  PROF.forEach(function(g){
-    h+='<div class="grp"><p class="gq">'+t(g.q)+'</p><div class="opts" data-g="'+g.id+'">';
+  var ids=['nick'].concat(PROF.map(function(g){return g.id}),['mbti']),n=ids.length,id=ids[profStep],g=PROF.filter(function(x){return x.id===id})[0];
+  var h='<div class="spec-card prof" role="group"><span class="tag">'+t('先聊聊你（選填）')+'</span><div class="dots">';
+  for(var k=0;k<n;k++)h+='<i'+(k<=profStep?' class="on"':'')+'></i>';
+  h+='</div>';
+  if(id==='nick'){
+    h+='<p class="q">'+t('暱稱')+' <small>'+t('選填，讓我知道是誰填的')+'</small></p><input id="pn" class="note-in nick" maxlength="20" autocomplete="off" placeholder="'+t('例如：小明')+'" value="'+(A.nick||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'"><button class="cta" id="pnext" type="button">'+t('下一步')+'</button>';
+  }else if(g){
+    h+='<p class="q">'+t(g.q)+'</p><div class="opts big" data-g="'+g.id+'">';
     g.o.forEach(function(o){h+='<button type="button" class="pb'+(A[g.id]===o[0]?' on':'')+'" data-v="'+o[0]+'">'+(o[1]?o[1]+' ':'')+t(o[0])+'</button>'});
-    h+='</div></div>';
-  });
-  var m=A.mbti||'????';
-  h+='<div class="grp"><p class="gq">MBTI <small>'+t('不知道可以不選')+'</small></p><div class="mbrow">';
-  MB.forEach(function(pr,i){h+='<div class="opts mb" data-i="'+i+'">'+pr.map(function(c){return '<button type="button" class="pb'+(m[i]===c?' on':'')+'" data-v="'+c+'">'+c+'</button>'}).join('')+'</div>'});
-  h+='</div></div><div class="spec-actions"><button class="cta alt" id="pskip" type="button">'+t('全部跳過')+'</button><button class="cta" id="pok" type="button">'+t('開始滑')+'</button></div></div>';
+    h+='</div>';
+  }else{
+    var m=A.mbti||'????';
+    h+='<p class="q">MBTI <small>'+t('不知道可以不選')+'</small></p><div class="mbrow">';
+    MB.forEach(function(pr,i){h+='<div class="opts mb" data-i="'+i+'">'+pr.map(function(c){return '<button type="button" class="pb'+(m[i]===c?' on':'')+'" data-v="'+c+'">'+c+'</button>'}).join('')+'</div>'});
+    h+='</div><button class="cta" id="pnext" type="button">'+t('開始滑')+'</button>';
+  }
+  h+='<div class="pnav"><button type="button" class="plink" id="pback"'+(profStep?'':' style="visibility:hidden"')+'>‹ '+t('上一題')+'</button><button type="button" class="plink" id="pskip">'+t('跳過')+' ›</button></div></div>';
   $('spec').innerHTML=h;
+  var saveNick=function(){var e=$('pn');if(e){var v=e.value.trim();if(v)A.nick=v;else delete A.nick}};
+  var go=function(){profileActive=false;$('spec').hidden=true;$('stage').hidden=false;$('controls').hidden=false;showNext()};
+  var next=function(){saveNick();if(profStep>=n-1)return go();profStep++;startProfile(1)};
   document.querySelectorAll('#spec .opts[data-g] .pb').forEach(function(b){b.addEventListener('click',function(){
-    var g=b.parentNode.dataset.g,v=b.dataset.v,on=A[g]===v;
-    b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
-    if(on)delete A[g];else{A[g]=v;b.classList.add('on')}})});
+    A[b.parentNode.dataset.g]=b.dataset.v;b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});b.classList.add('on');setTimeout(next,220)})});
   document.querySelectorAll('#spec .opts.mb .pb').forEach(function(b){b.addEventListener('click',function(){
     var i=+b.parentNode.dataset.i,v=b.dataset.v,m=(A.mbti||'????').split(''),on=m[i]===v;
     b.parentNode.querySelectorAll('.pb').forEach(function(x){x.classList.remove('on')});
     m[i]=on?'?':v;if(!on)b.classList.add('on');A.mbti=m.join('');if(A.mbti==='????')delete A.mbti})});
-  var go=function(){var n=$('pn').value.trim();if(n)A.nick=n;else delete A.nick;profileActive=false;$('spec').hidden=true;$('stage').hidden=false;$('controls').hidden=false;showNext()};
-  $('pok').addEventListener('click',go);
-  $('pskip').addEventListener('click',function(){['gender','age','freq','trip','role','mbti'].forEach(function(k){delete A[k]});go()});
+  if($('pnext'))$('pnext').addEventListener('click',next);
+  $('pskip').addEventListener('click',function(){if(id==='mbti')delete A.mbti;else if(g)delete A[id];next()});
+  $('pback').addEventListener('click',function(){saveNick();if(profStep>0){profStep--;startProfile(1)}});
   $('bar').style.width='0%';$('pg').setAttribute('aria-valuenow',0);
 }
 Object.assign(TR.en,{'暱稱':'Nickname','選填，讓我知道是誰填的':'optional','例如：小明':'e.g. Alex'});
@@ -571,6 +583,10 @@ Object.assign(TR.en,{"保養品和化妝品，我常煩惱大瓶帶不了、太�
 Object.assign(TR.ja,{"保養品和化妝品，我常煩惱大瓶帶不了、太重，或沒有託運行李。": "スキンケアやコスメは、大きなボトルが重すぎたり、預け荷物がなくて持っていけず悩むことが多い。", "液體和重量的限制，我記下了。": "液体と重量の制限、記録しました。", "保養品對你不是問題。": "スキンケアは悩みではないんですね。", "出發前一天，有人提醒我「分裝瓶夠不夠、有沒有試用包」，我會覺得安心。": "出発前日に「詰め替えボトルは足りてる？サンプルはある？」と知らせてくれたら安心する。", "分裝瓶提醒，我記下了。": "詰め替えボトルの通知、記録しました。", "你不需要這種提醒。": "その通知は不要なんですね。", "保養品容量煩惱": "スキンケア容量の悩み", "分裝瓶提醒": "詰め替えボトル通知", "最晚到前一天晚上也算。看旅程而定也沒關係，想最常見的情況就好。": "前日の夜でもOKです。旅行によって違う場合は、いちばん多いケースで答えてください。", "最近一趟或下一趟，大多是？": "最近または次の旅行は、たいてい？", "短途（約一週內）": "短め（1週間以内）", "長途（一週以上）": "長め（1週間以上）", "兩種都有": "どちらもある"});
 Object.assign(TR.ko,{"保養品和化妝品，我常煩惱大瓶帶不了、太重，或沒有託運行李。": "스킨케어와 화장품은 큰 용기가 너무 무겁거나 수하물이 없어서 가져가지 못해 고민할 때가 많아요.", "液體和重量的限制，我記下了。": "액체와 무게 제한, 기록했어요.", "保養品對你不是問題。": "스킨케어는 고민이 아니군요.", "出發前一天，有人提醒我「分裝瓶夠不夠、有沒有試用包」，我會覺得安心。": "출발 전날 \"소분 용기는 충분해요? 샘플은 있어요?\" 하고 알려 주면 안심이 돼요.", "分裝瓶提醒，我記下了。": "소분 용기 알림, 기록했어요.", "你不需要這種提醒。": "그런 알림은 필요 없으시군요.", "保養品容量煩惱": "스킨케어 용량 고민", "分裝瓶提醒": "소분 용기 알림", "最晚到前一天晚上也算。看旅程而定也沒關係，想最常見的情況就好。": "전날 밤도 해당돼요. 여행에 따라 다르면 가장 흔한 경우로 답해 주세요.", "最近一趟或下一趟，大多是？": "최근 또는 다음 여행은 대체로?", "短途（約一週內）": "짧은 여행(1주일 이내)", "長途（一週以上）": "긴 여행(1주일 이상)", "兩種都有": "둘 다"});
 Object.assign(TR.cn,{"保養品和化妝品，我常煩惱大瓶帶不了、太重，或沒有託運行李。": "保养品和化妆品，我常烦恼大瓶带不了、太重，或没有托运行李。", "液體和重量的限制，我記下了。": "液体和重量的限制，我记下了。", "保養品對你不是問題。": "保养品对你不是问题。", "出發前一天，有人提醒我「分裝瓶夠不夠、有沒有試用包」，我會覺得安心。": "出发前一天，有人提醒我「分装瓶够不够、有没有试用包」，我会觉得安心。", "分裝瓶提醒，我記下了。": "分装瓶提醒，我记下了。", "你不需要這種提醒。": "你不需要这种提醒。", "保養品容量煩惱": "保养品容量烦恼", "分裝瓶提醒": "分装瓶提醒", "最晚到前一天晚上也算。看旅程而定也沒關係，想最常見的情況就好。": "最晚到前一天晚上也算。看旅程而定也没关系，想最常见的情况就好。", "最近一趟或下一趟，大多是？": "最近一趟或下一趟，大多是？", "短途（約一週內）": "短途（约一周内）", "長途（一週以上）": "长途（一周以上）", "兩種都有": "两种都有"});
+Object.assign(TR.en,{"下一步": "Next", "上一題": "Back"});
+Object.assign(TR.ja,{"下一步": "次へ", "上一題": "戻る"});
+Object.assign(TR.ko,{"下一步": "다음", "上一題": "이전"});
+Object.assign(TR.cn,{"下一步": "下一步", "上一題": "上一题"});
 var noteActive=false;
 function startNote(keep){
   noteActive=true;$('spec').hidden=false;$('keyhint').textContent='';
