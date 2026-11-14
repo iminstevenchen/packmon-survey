@@ -118,6 +118,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .q{margin:auto 0;font-weight:900;font-size:clamp(25px,7.2vw,32px);line-height:1.4;text-wrap:balance}
 .hint{color:var(--muted);font-size:14px;font-weight:500;min-height:1.5em}
 .stage.vsm{min-height:370px}
+.measure .card{position:relative;inset:auto;height:auto;transform:none;animation:none}
 .card:not(.top){overflow:hidden}.card:not(.top)>*{visibility:hidden}
 .vs{margin:auto 0;display:grid;gap:8px}
 .vs h3{margin:0 0 2px;font-weight:900;font-size:clamp(19px,5.4vw,24px);line-height:1.35}
@@ -423,8 +424,20 @@ function cardEl(id,depth){
   el.innerHTML=h;return el;
 }
 function peek(n){var ids=[];for(var i=0;i<queue.length&&ids.length<n;i++){if(eligible(queue[i])&&ids.indexOf(queue[i])<0)ids.push(queue[i])}return ids}
-function fitStage(){var st=$('stage'),tc=topEl();if(!tc)return;st.style.minHeight='';var o=tc.scrollHeight-tc.clientHeight;if(o>1)st.style.minHeight=(st.clientHeight+o+4)+'px'}
+var fitKey='',fitH=0;
+function fitStage(){
+  var st=$('stage');if(!st)return;var w=st.clientWidth,key=LANG+w;
+  if(w&&key!==fitKey){
+    var m=document.createElement('div');m.className='stage measure';
+    m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;width:'+w+'px;min-height:0;margin:0;flex:none';
+    document.body.appendChild(m);var mx=0;
+    Object.keys(CARDS).forEach(function(id){m.innerHTML='';var el=cardEl(id,0);m.appendChild(el);if(el.scrollHeight>mx)mx=el.scrollHeight});
+    document.body.removeChild(m);fitKey=key;fitH=mx;
+  }
+  var hh=Math.max(260,fitH+14)+'px';st.style.flex='none';st.style.height=hh;st.style.minHeight=hh;
+}
 window.addEventListener('resize',fitStage);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fitKey='';fitStage()});
 function renderDeck(){
   var st=$('stage');st.innerHTML='';
   var ids=[current].concat(peek(2));
