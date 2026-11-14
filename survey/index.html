@@ -433,7 +433,7 @@ function renderDeck(){
   $('tL').textContent=t(vs?'選 B':'不像我');$('tR').textContent=t(vs?'選 A':'像我');var NL=vs?(CARDS[current].n||'都不要'):'超有感';$('tU').textContent=t(NL);
   $('bL').setAttribute('aria-label',t(vs?'選 B':'不像我'));$('bR').setAttribute('aria-label',t(vs?'選 A':'像我'));$('bU').setAttribute('aria-label',t(NL));
   $('keyhint').textContent=t('也可以用鍵盤的 ← ↑ → 作答');
-  $('bU').querySelector('.vs-l').textContent=t(NL);
+  $('bU').querySelector('.vs-l').textContent='✕';
   updateProgress();
 }
 function showNext(){
