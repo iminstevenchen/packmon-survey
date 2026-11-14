@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="manifest" href="manifest.json">
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}@media (max-height:820px){.card{padding:16px 18px 14px}.opt{font-size:14px;line-height:1.35}.opt b{width:32px;height:32px;font-size:15px}.opt{grid-template-columns:32px 1fr}.stage.vsm{min-height:340px}}
+</style><link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#D2693F">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Packmon">
@@ -116,9 +117,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tag{align-self:flex-start;font-size:13px;font-weight:900;letter-spacing:.04em;padding:4px 14px;border-radius:99px;background:var(--accent);color:var(--on-accent)}
 .q{margin:auto 0;font-weight:900;font-size:clamp(25px,7.2vw,32px);line-height:1.4;text-wrap:balance}
 .hint{color:var(--muted);font-size:14px;font-weight:500;min-height:1.5em}
-.vs{margin:auto 0;display:grid;gap:10px}
-.vs h3{margin:0 0 4px;font-weight:900;font-size:clamp(21px,6vw,26px);line-height:1.4}
-.opt{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start;padding:12px;border-radius:18px;border:2.5px solid var(--line);background:var(--surface-2);font-weight:700;font-size:15px;line-height:1.45}
+.stage.vsm{min-height:370px}
+.vs{margin:auto 0;display:grid;gap:8px}
+.vs h3{margin:0 0 2px;font-weight:900;font-size:clamp(19px,5.4vw,24px);line-height:1.35}
+.opt{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:center;padding:9px 12px;border-radius:18px;border:2.5px solid var(--line);background:var(--surface-2);font-weight:700;font-size:15px;line-height:1.45}
 .opt b{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:2.5px solid var(--line);font-weight:900;font-size:17px}
 .opt.a b{background:var(--accent);color:var(--on-accent)}
 .opt.b b{background:var(--mint);color:#141414}
@@ -420,12 +422,14 @@ function cardEl(id,depth){
   el.innerHTML=h;return el;
 }
 function peek(n){var ids=[];for(var i=0;i<queue.length&&ids.length<n;i++){if(eligible(queue[i])&&ids.indexOf(queue[i])<0)ids.push(queue[i])}return ids}
+function fitStage(){var st=$('stage'),tc=topEl();if(!tc)return;st.style.minHeight='';var o=tc.scrollHeight-tc.clientHeight;if(o>1)st.style.minHeight=(st.clientHeight+o+4)+'px'}
+window.addEventListener('resize',fitStage);
 function renderDeck(){
   var st=$('stage');st.innerHTML='';
   var ids=[current].concat(peek(2));
   for(var i=ids.length-1;i>=0;i--){st.appendChild(cardEl(ids[i],i))}
   var vs=CARDS[current].type==='vs';
-  $('controls').dataset.mode=vs?'vs':'yn';
+  $('controls').dataset.mode=vs?'vs':'yn';$('stage').classList.toggle('vsm',vs);fitStage();
   $('tL').textContent=t(vs?'選 B':'不像我');$('tR').textContent=t(vs?'選 A':'像我');var NL=vs?(CARDS[current].n||'都不要'):'超有感';$('tU').textContent=t(NL);
   $('bL').setAttribute('aria-label',t(vs?'選 B':'不像我'));$('bR').setAttribute('aria-label',t(vs?'選 A':'像我'));$('bU').setAttribute('aria-label',t(NL));
   $('keyhint').textContent=t('也可以用鍵盤的 ← ↑ → 作答');
